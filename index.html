@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#121218" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <title>Vader Vocoder PWA</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+         margin:0; background:#0f1116; color:#e8e9ef; display:flex; min-height:100vh; align-items:center; justify-content:center;}
+    .app{width:min(920px, 96vw); padding:24px; border-radius:16px; background:#141821; box-shadow:0 10px 30px rgba(0,0,0,.4);}
+    h1{margin:0 0 8px; font-size:clamp(20px, 4vw, 28px); letter-spacing:0.5px;}
+    p.sub{opacity:0.8; margin:0 0 16px;}
+    .row{display:flex; gap:16px; flex-wrap:wrap; align-items:center;}
+    button{appearance:none; border:none; padding:12px 16px; border-radius:12px; background:#2a3344; color:#e8e9ef; font-weight:600; cursor:pointer;}
+    button.primary{background:#4a84ff;}
+    button.danger{background:#cc4555;}
+    button:disabled{opacity:.5; cursor:not-allowed;}
+    .card{background:#192030; border-radius:12px; padding:16px; margin-top:16px;}
+    .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;}
+    .ctrl label{display:block; font-size:12px; opacity:.8; margin-bottom:6px;}
+    .ctrl input[type="range"]{width:100%;}
+    .badge{display:inline-block; padding:4px 10px; border-radius:999px; background:#263146; font-size:12px; margin-left:8px;}
+    .status{font-size:13px; opacity:.85;}
+    .hint{font-size:12px; opacity:.7; margin-top:10px;}
+    .footer{opacity:.6; font-size:12px; margin-top:16px; text-align:right;}
+    .preset{min-width:200px;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Vader Vocoder <span class="badge">PWA</span></h1>
+    <p class="sub">Real‑time voice effect with Darth Vader preset & mechanical breathing. Works best with headphones.</p>
+    <div class="row">
+      <button id="start" class="primary">Enable Microphone & Start</button>
+      <button id="stop" class="danger" disabled>Stop</button>
+      <select id="preset" class="preset" title="Choose preset">
+        <option value="vader" selected>Darth Vader (enhanced)</option>
+      </select>
+      <span class="status" id="status">idle</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">Tuning</h3>
+      <div class="controls">
+        <div class="ctrl">
+          <label for="voiceGain">Voice Volume</label>
+          <input type="range" id="voiceGain" min="0" max="1.5" step="0.01" value="1.0" />
+        </div>
+        <div class="ctrl">
+          <label for="breathGain">Breathing Volume</label>
+          <input type="range" id="breathGain" min="0" max="1.0" step="0.01" value="0.35" />
+        </div>
+        <div class="ctrl">
+          <label for="dist">Distortion Amount</label>
+          <input type="range" id="dist" min="0" max="1.0" step="0.01" value="0.35" />
+        </div>
+        <div class="ctrl">
+          <label for="comb">Metallic (Comb Mix)</label>
+          <input type="range" id="comb" min="0" max="1.0" step="0.01" value="0.25" />
+        </div>
+        <div class="ctrl">
+          <label for="lowCut">Low Cut (Hz)</label>
+          <input type="range" id="lowCut" min="20" max="200" step="1" value="50" />
+        </div>
+        <div class="ctrl">
+          <label for="lowPass">Low Pass (Hz)</label>
+          <input type="range" id="lowPass" min="500" max="4000" step="10" value="1700" />
+        </div>
+      </div>
+      <div class="hint">Tip: for maximum “Vader”, speak slowly and from your chest. Use headphones to avoid feedback (we disable echo cancellation for best quality).</div>
+    </div>
+
+    <div class="footer">Installable PWA • Offline ready • Mobile‑optimized</div>
+  </div>
+
+  <audio id="out" autoplay playsinline></audio>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    // PWA SW registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.warn);
+      });
+    }
+  </script>
+</body>
+</html>
