@@ -62,32 +62,54 @@ A mobile-first, installable **Progressive Web App** that transforms your voice w
 
 ```mermaid
 flowchart LR
-  Mic((Mic getUserMedia)) --> MSrc[MediaStreamSource]
-  MSrc --> HP[Highpass (Low Cut)]
-  HP --> LowKick[Peaking 120Hz +6dB]
-  LowKick --> LowChest[Peaking 300Hz +4dB]
-  LowChest --> Comp[Compressor (heavy)]
-  Comp --> Shaper[Waveshaper (dist)]
-  Shaper --> LP[Lowpass (~1.7 kHz)]
+  Mic[Mic getUserMedia];
+  MSrc[MediaStreamSource];
+  HP[Highpass - Low Cut];
+  LowKick[Peaking 120 Hz +6 dB];
+  LowChest[Peaking 300 Hz +4 dB];
+  Comp[Compressor - heavy];
+  Shaper[Waveshaper - dist];
+  LP[Lowpass ~1.7 kHz];
+  Dry[Dry shaped];
+  Delay[Short delay ~6 ms];
+  FB[Feedback 0.18];
+  CombMix[Comb mix];
+  Conv[Convolver IR];
+  ConvMix[Convolver mix];
+  Breath[breathing.wav loop];
+  BreathGain[Breath gain];
+  Sum[Mix bus];
+  OutGain[Voice volume];
+  MSDest[MediaStreamDestination];
+  HTMLAudio[Audio element (autoplay, playsinline)];
 
-  %% Split
-  LP --> Dry[Dry Shaped]
-  LP --> Delay[Short Delay ~6 ms] --> FB[Feedback 0.18] --> Delay
-  Delay --> CombMix[Comb Mix]
-  LP --> Conv[Convolver IR] --> ConvMix[Conv Mix]
+  Mic --> MSrc;
+  MSrc --> HP;
+  HP --> LowKick;
+  LowKick --> LowChest;
+  LowChest --> Comp;
+  Comp --> Shaper;
+  Shaper --> LP;
 
-  %% Sum
-  Dry --> Sum
-  CombMix --> Sum
-  ConvMix --> Sum
+  LP --> Dry;
+  LP --> Delay;
+  Delay --> FB;
+  FB --> Delay;
+  Delay --> CombMix;
 
-  %% Breathing bed
-  Breath[Breathing.wav (loop)] --> BreathGain --> Sum
+  LP --> Conv;
+  Conv --> ConvMix;
 
-  %% Output
-  Sum --> OutGain[Voice Volume]
-  OutGain --> MSDest[MediaStreamDestination]
-  MSDest --> HTMLAudio[<audio> (autoplay, playsinline)]
+  Dry --> Sum;
+  CombMix --> Sum;
+  ConvMix --> Sum;
+
+  Breath --> BreathGain;
+  BreathGain --> Sum;
+
+  Sum --> OutGain;
+  OutGain --> MSDest;
+  MSDest --> HTMLAudio;
 ```
 
 **Why this structure?**  
