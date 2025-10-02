@@ -81,7 +81,7 @@ flowchart LR
   Sum[Mix bus];
   OutGain[Voice volume];
   MSDest[MediaStreamDestination];
-  HTMLAudio[Audio element (autoplay, playsinline)];
+  HTMLAudio[Audio output];
 
   Mic --> MSrc;
   MSrc --> HP;
