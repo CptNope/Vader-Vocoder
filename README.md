@@ -60,9 +60,10 @@ A mobile-first, installable **Progressive Web App** that transforms your voice w
 
 ## 🔊 Audio Graph (High-Level)
 
+```
+
 <code>mermaid</code>
 
-```
 flowchart LR
   Mic((Mic getUserMedia)) --> MSrc[MediaStreamSource]
   MSrc --> HP[Highpass (Low Cut)]
@@ -90,8 +91,11 @@ flowchart LR
   Sum --> OutGain[Voice Volume]
   OutGain --> MSDest[MediaStreamDestination]
   MSDest --> HTMLAudio[<audio> (autoplay, playsinline)]
-```
+
 <code></code>
+
+```
+
 
 **Why this structure?**  
 - The **comb** path adds metallic “helmet” resonance.  
