@@ -1,137 +1,218 @@
 # Vader Vocoder PWA (Updated)
 
-This build focuses on **robust live audio on mobile**, a much more authentic **Darth Vader voice preset**, and a realistic, looping **mechanical breathing** bed. It remains a fully installable **PWA**.
+A mobile-first, installable **Progressive Web App** that transforms your voice with a refined **Darth Vader** preset and a realistic, looping **mechanical breathing** bed. This update focuses on **stable live audio on mobile**, **authentic timbre**, and a clean, offline-ready PWA experience.
 
-## What’s new
-- **Stable live mic** on mobile: disables echo cancellation / AGC / noise suppression, routes through a `MediaStreamDestination` and HTMLAudio element to keep iOS Safari alive.
-- **Vader preset**: deep EQ (low emphasis + low-pass), heavy compression, gentle distortion, metallic comb resonance, light early reflection (convolver).
-- **Breathing**: included `assets/breathing.wav` (procedural) loops smoothly under the voice.
-- **PWA**: updated `manifest.json`, icons (192/512), `sw.js` caches assets for offline and installability.
+---
 
-## Use
-Serve over **HTTPS** (or `localhost`) for mic & service worker. Then:
-1. Open the page, click **Enable Microphone & Start**, allow mic.
-2. Speak slowly with headphones. Adjust sliders for taste.
-3. Install to home screen if desired (Chrome/Android prompt; iOS use “Add to Home Screen”).
+## ✨ What’s New
 
-## Files
-- `index.html`, `app.js`: UI and audio graph.
-- `assets/breathing.wav`: Vader‑style breathing loop (generated programmatically).
-- `manifest.json`, `icon-192.png`, `icon-512.png`: PWA metadata.
-- `sw.js`: offline cache.
+- **Stable live mic on mobile**  
+  Requests audio with `echoCancellation`, `noiseSuppression`, and `autoGainControl` **disabled** for a clean, uninterrupted raw stream. Output is routed through a `MediaStreamDestination` into an `<audio>` element to help keep iOS audio contexts alive.
+- **Improved Vader preset**  
+  Deep EQ (low emphasis + strong low-pass), **heavy compression**, **gentle distortion**, **short-delay comb resonance** for helmet timbre, and a touch of convolver “room” for presence.
+- **Realistic breathing**  
+  Ships with a smooth, looping `assets/breathing.wav` generated to mimic Vader’s mechanical inhale/exhale (no more “static” bursts).
+- **PWA polish**  
+  Updated `manifest.json`, proper icons (**192/512**), and a service worker (`sw.js`) that caches the app shell and the breathing asset for offline use.
 
-## Notes
-- Headphones strongly recommended. With echo cancellation disabled, speaker+mic can feedback.
-- If audio stops after backgrounding on iOS, bring app to foreground; it will resume.
-- For even lower latency/heavier DSP, consider migrating parts to an **AudioWorklet** later.
+---
 
-May the Force be with you.
+## 🚀 Quick Start
 
-## 1. Reliable Live Audio Processing on Mobile ✅
+> Serve over **HTTPS** (or `http://localhost`) so the mic and service worker work properly.
 
-We addressed the microphone audio cutting out on mobile by adjusting Web Audio usage and stream settings:
+1. **Deploy** the static files to any web host (or run a simple local server).
+2. Open the app and tap **Enable Microphone & Start**, then grant mic permission.
+3. Speak slowly (headphones recommended). Adjust sliders to taste.
+4. **Install as a PWA**:  
+   - **Android/Chrome**: “Install app” prompt or menu → *Add to Home screen*.  
+   - **iOS/Safari**: Share menu → *Add to Home Screen*.
 
-Disabled audio processing constraints: The app now requests the microphone with echoCancellation, noiseSuppression, and autoGainControl turned off
-stackoverflow.com
-. This prevents the browser or OS from modifying or cutting the audio (echo cancellers often caused the Vader voice to drop out when output was fed back into the mic). Disabling these ensures a clean, uninterrupted stream of raw audio on mobile devices.
+---
 
-Ensured proper AudioContext use: The microphone is activated via a user gesture (the "Enable Microphone" button) to satisfy autoplay policies on mobile. We also use the standard AudioContext (with a WebKit fallback) and call it in response to a click, so it won’t be suspended by the browser. The app will not start processing until the user explicitly enables it, which is required on iOS and Chrome for audio to run.
+## 🧩 Features
 
-Maintained continuous processing: If Safari on iOS still suspends the audio after some inactivity, a known workaround is to route the output through a MediaStreamDestination node and play it (tricking Safari into treating it like an active call)
-reddit.com
-. Our code includes a persistent looping audio (the breathing sound) which also helps keep the audio context alive. In testing, these changes improved stability – the voice effect no longer randomly stops on iOS Safari or Android Chrome during extended use.
+- Real-time voice processing tuned for **Darth Vader**.
+- Mechanical breathing bed with independent volume control.
+- Latency-conscious audio graph designed for **mobile browsers**.
+- Fully installable **PWA** with offline caching.
 
-(Optional) AudioWorklet upgrade: The original code used standard Web Audio nodes for the vocoder effect. This is fine for most cases, but if extremely low latency or heavy DSP is needed, migrating from any deprecated ScriptProcessorNode to an AudioWorklet would further improve performance on mobile. The current update doesn't implement a custom AudioWorklet (the existing performance was acceptable), but the architecture now would allow adding one easily in the future.
+---
 
-In summary, mobile users should experience a more reliable, uninterrupted live voice effect after these changes. The microphone stream remains active and the audio context persists as expected.
+## 🎛️ Controls & Preset
 
-## 2. Enhanced “Darth Vader” Voice Preset 🎙️
+**Preset**: `Darth Vader (enhanced)` – deep, compressed, metallic.
 
-We’ve significantly improved the Darth Vader preset to make your voice sound much closer to the iconic movie character. Key audio processing changes include:
+| Control | Default | Range | What it does |
+|---|---:|:---:|---|
+| Voice Volume | 1.00 | 0.00 – 1.50 | Final gain for the processed voice. |
+| Breathing Volume | 0.35 | 0.00 – 1.00 | Level of the looping breathing bed. |
+| Distortion Amount | 0.35 | 0.00 – 1.00 | Waveshaper drive; adds electronic grit. |
+| Metallic (Comb Mix) | 0.25 | 0.00 – 1.00 | Mix of short-delay comb resonance (helmet timbre). |
+| Low Cut (Hz) | 50 | 20 – 200 | High-pass to reduce low rumble/mud. |
+| Low Pass (Hz) | 1700 | 500 – 4000 | Strong low-pass for Vader’s dark, chesty tone. |
 
-Deeper pitch and formant: We lowered the effective pitch of your voice. In a vocoder context, this meant shifting the frequency bands down and boosting low frequencies. We applied a strong low-pass filter (~1.5 kHz cutoff) to remove high-frequency hiss and emphasize the bass in your voice. The result is a boomier, chestier sound. (James Earl Jones’ original Vader voice is very deep; our filtering simulates that effect.) According to sound design experts, the Vader effect is an “amalgamation of various EQ [equalization], heavy compression, pitch-shifting, etc.”
-reddit.com
- – we’ve incorporated those elements here.
+**Tips for best results**
+- Speak **slowly and calmly** from your chest.
+- Use **headphones** to avoid feedback (echo cancellation is disabled for quality).
 
-Dynamic compression and distortion: We added a DynamicsCompressor node and a subtle overdrive distortion. The compressor flattens the dynamic range (so whispers and shouts both sound menacingly loud) and adds that “powerful” presence to the voice
-reddit.com
-. The slight distortion (via a WaveShaper) gives a gritty, mechanical edge without overpowering the clarity. These additions mimic the saturation and heavy processing used in the films to make Vader’s voice sound electronically amplified.
+---
 
-Comb filtering for metallic resonance: To recreate the helmet’s resonant sound, we introduced a very short delay (~7 milliseconds) mixed with the original signal. This creates a comb-filter effect – a subtle metallic timbre characteristic of voices in enclosures
-kemono.cr
-. This is the same principle as using a flanger or ring modulator subtly; in fact, audio engineers note that a small amount of comb filtering is very desirable for villain voices like Vader’s
-kemono.cr
-. In our implementation, your voice is duplicated and delayed by a few milliseconds, causing interference that produces a faint “ring” or cave-like quality. This makes the voice changer sound much more like speaking from inside a mask.
+## 🔊 Audio Graph (High-Level)
 
-Overall tuning: We fine-tuned the above effects so that the Darth Vader preset sounds deep and intimidating but still intelligible. The filtering removes tinny or nasal qualities, the comb filter/delay adds metallic depth, and the compressor/distortion chain gives a realistic electronic distortion without going into “static” territory. You can further tweak these nodes if desired (e.g. increase the distortion amount or adjust the delay time) – the code is commented and modular.
+```mermaid
+flowchart LR
+  Mic((Mic getUserMedia)) --> MSrc[MediaStreamSource]
+  MSrc --> HP[Highpass (Low Cut)]
+  HP --> LowKick[Peaking 120Hz +6dB]
+  LowKick --> LowChest[Peaking 300Hz +4dB]
+  LowChest --> Comp[Compressor (heavy)]
+  Comp --> Shaper[Waveshaper (dist)]
+  Shaper --> LP[Lowpass (~1.7 kHz)]
 
-The combination of these changes yields a dramatically improved Vader voice. Speaking through this preset now produces a close approximation of the iconic low, rumbling Dark Lord of the Sith tone, especially if you speak with a calm, breathy delivery. (Of course, no real-time effect will be 100% James Earl Jones
-reddit.com
-, but this is a big step closer!)
+  %% Split
+  LP --> Dry[Dry Shaped]
+  LP --> Delay[Short Delay ~6 ms] --> FB[Feedback 0.18] --> Delay
+  Delay --> CombMix[Comb Mix]
+  LP --> Conv[Convolver IR] --> ConvMix[Conv Mix]
 
-## 3. More Realistic “Breathing” Effect 🌬️
+  %% Sum
+  Dry --> Sum
+  CombMix --> Sum
+  ConvMix --> Sum
 
-One of the most recognizable aspects of Darth Vader is his mechanical breathing. We’ve reworked the breathing sound effect so it no longer resembles simple static noise, but instead closely mimics the movie breathing:
+  %% Breathing bed
+  Breath[Breathing.wav (loop)] --> BreathGain --> Sum
 
-Authentic audio sample: We replaced the old static hiss with a real Darth Vader breathing sound sourced from a royalty-free library
-pixabay.com
-. (The original sound was famously created by recording breathing through a scuba regulator
-soundeffects.fandom.com
- – our chosen sample captures that same rasping respirator quality.) The audio is an 18-second loop of Vader-style breathing (alternating inhale and exhale) and is included in the PWA assets. Using an actual breathing recording makes a huge difference – it sounds instantly recognizable.
+  %% Output
+  Sum --> OutGain[Voice Volume]
+  OutGain --> MSDest[MediaStreamDestination]
+  MSDest --> HTMLAudio[<audio> (autoplay, playsinline)]
+```
 
-Looped playback in sync: The breathing audio is loaded at startup and played on a loop at low volume underneath your voice. It runs continuously as long as the effect is enabled, even between phrases, just like Vader’s constant breathing in the films. We set the breathing on a separate audio buffer that is independent of the mic stream, so it won’t cut off your voice; it simply provides background atmosphere. The volume and character of the breathing have been tweaked to avoid overpowering your speech – it’s present but not distracting (you’ll hear it in pauses, and faintly behind your words).
+**Why this structure?**  
+- The **comb** path adds metallic “helmet” resonance.  
+- **Compressor + waveshaper** create that amplified, menacing presence.  
+- A **strong low-pass** removes upper hiss to emulate the dark, chesty timbre.  
+- A **subtle convolver** adds early reflections so it doesn’t sound flat.  
+- The **breathing bed** is independent, so your voice never ducks or clips it.
 
-No more “static” artifact: Previously, the breathing might have sounded like static noise bursts. Now it truly sounds like Vader’s regulated breathing apparatus. The mechanical rhythm and tone add a lot of realism to the overall effect. Because we used a high-quality sample (44 kHz, stereo) and cache it offline, the breathing is clear and consistent. Users have noted that this update makes the experience far more immersive – you feel inside the helmet.
+---
 
-If desired, you can adjust the breathing volume or swap the sample easily (the code points to breathing.wav which you can replace with any other loop). But we’ve found this sample to be an excellent match – it’s free to use and was specifically created as a Darth Vader breath sound effect
-pixabay.com
-.
+## 📱 PWA & Cross-Platform Notes
 
-## 4. PWA Installability and Cross-Platform Support 📱
+- **Installability**: `manifest.json` includes the required fields and 192/512 icons.  
+- **Offline**: `sw.js` caches `index.html`, `app.js`, `manifest.json`, icons, and `assets/breathing.wav`.  
+- **iOS**: Must start audio in response to a **user gesture**. Background playback is limited by iOS; audio resumes when foregrounded.  
+- **Bluetooth output**: On mobile, output routing to a BT speaker is controlled by the OS. Start the app **after** connecting BT.
 
-We kept the app a full Progressive Web App, ensuring it can be installed on mobile home screens and works offline. In fact, we made some improvements here too:
+---
 
-Manifest and icons: The manifest.json has been updated with all required fields (name, short_name, start URL, theme colors) and now includes the standard icon sizes 192x192 and 512x512 PNGs
-web.dev
-. This satisfies install criteria for Android Chrome and other browsers – you should see the “Add to Home Screen” prompt now. (We included placeholder Vader-themed icons; feel free to replace them with your own logo.) Meeting the icon size requirements and having a correct manifest means the PWA is recognized as installable by browsers
-web.dev
-.
+## 🗂️ File Structure
 
-Service worker caching: The existing service worker script (sw.js) is updated to cache the new assets (like the breathing sound and icons) on install. The app shell (HTML, JS, CSS) and the Vader audio file will be available offline once the PWA is installed. This way, you can use the voice changer even with no internet, and the breathing sound won’t need to re-download each time – improving performance on mobile.
+```
+/
+├─ index.html              # UI + controls
+├─ app.js                  # Web Audio graph & PWA glue
+├─ sw.js                   # Service worker (offline caching)
+├─ manifest.json           # PWA metadata
+├─ icon-192.png            # PWA icon (192x192)
+├─ icon-512.png            # PWA icon (512x512)
+└─ assets/
+   └─ breathing.wav        # Looping mechanical breathing bed
+```
 
-iOS Safari compatibility: We added the <meta name="apple-mobile-web-app-capable" content="yes"> tag and appropriate manifest values so that when you “Add to Home Screen” on iOS, the app launches in full-screen mode. The Web Audio API is fully supported on modern iOS Safari now, and our use of Web Audio is compatible. (Note: iOS may not autoplay the audio in background; Apple restricts background audio for PWAs. However, as long as the app is open or screen on, it works well. The continuous loop via MediaStream and our other changes help maintain audio focus.)
+---
 
-Cross-browser testing: We tested the updated PWA on Chrome, Firefox, Safari (desktop and mobile). The vocoder effect and UI work consistently. On mobile browsers, remember to use headphones or keep volume low to avoid feedback – since we disable echo cancellation for best quality, using the phone’s speaker with the mic can cause howling. This is noted in the README. With headphones, it works great – you can walk around speaking like Vader in real time. 📢
+## 🔧 Development & Deployment
 
-Deployment & Usage:
+**Local dev (no build step required):**
+```bash
+# from project root
+python3 -m http.server 5173
+# then open http://localhost:5173
+```
 
-To install or deploy the updated app, simply extract the ZIP and host the files on a web server (it can be a static hosting like GitHub Pages or any HTTP server). Ensure it’s served over HTTPS (or localhost) so that the microphone permission and service worker work properly. Once deployed, open the page in your browser:
+**Static hosting:**
+- Upload all files as-is to any static host (Netlify, Vercel, GitHub Pages, Cloudflare Pages, S3+CF, etc.).  
+- Ensure **HTTPS** so `getUserMedia` + service worker work.
 
-On desktop: You can use it directly in the browser. Click “Enable Microphone & Start”, allow the mic permission, and select the Darth Vader preset. Speak into your mic – you’ll hear the transformed voice and breathing through your speakers. You can also install the PWA (e.g. in Chrome, use the install button in the address bar) if you want a standalone app window.
+---
 
-On mobile: Visit the URL in Chrome Android or Safari iOS. For Android, you should get an “Install App” prompt (or use “Add to Home Screen” from the menu) – the app will then behave like a native app with its own icon. For iOS, use the “Share -> Add to Home Screen” option in Safari. After installing, launch the app, tap the start button and grant audio permission. The app works offline after the first load (thanks to the cached files). Now you can enjoy being Darth Vader on the go!
+## 🧪 Troubleshooting
 
-We included a README in the project with these instructions and notes on major changes. The code is commented for further tweaking. We hope you enjoy the much more robust and realistic Vader Vocoder PWA – may the Force be with you! ✨
+- **No mic prompt / silent output**  
+  Reload on **HTTPS** (or `localhost`). Tap the **Enable** button again and allow mic access. On iOS, make sure Silent Mode is **off**.
+- **Feedback / howling**  
+  Use **headphones**. We intentionally disable echo cancellation for quality.
+- **Audio stops after backgrounding (iOS)**  
+  Re-open the app; the audio context resumes. iOS limits background audio in PWAs.
+- **High latency**  
+  Close other audio apps/tabs. Consider reducing system audio effects. Future option: migrate heavy DSP to an **AudioWorklet**.
 
-Sources:
+---
 
-Stack Overflow – example of disabling echo cancellation in Web Audio getUserMedia
-stackoverflow.com
+## 🛠️ Replace or Tweak the Breathing
 
-Reddit – keeping Web Audio active on iOS by using a live stream destination
-reddit.com
+- Replace `assets/breathing.wav` with any loop you prefer (keep a similar loudness to avoid clipping).  
+- Adjust default **Breathing Volume** in the UI or set a different start value in `index.html`.
 
-Reddit (r/audioengineering) – achieving the Darth Vader voice (EQ, compression, pitch shifting)
-reddit.com
+---
 
-Sound Design StackExchange – comb filtering recommended for “villain” voice effect
-kemono.cr
+## 🔬 Technical Details
 
-Pixabay/Freesound – “Darth Vader Breathing” sound effect (CC0 license, by ihitokage)
-pixabay.com
+**Microphone constraints (for clean raw audio):**
+```js
+navigator.mediaDevices.getUserMedia({
+  audio: {
+    echoCancellation: false,
+    noiseSuppression: false,
+    autoGainControl: false,
+    channelCount: 1
+  }
+});
+```
 
-Soundeffects Wiki – Vader’s breath created with scuba regulator (Ben Burtt)
-soundeffects.fandom.com
+**Keeping audio alive on mobile:**  
+- Start the **AudioContext** on a **user gesture**.  
+- Route final mix to a `MediaStreamDestination` and assign it to an `<audio>` element (`autoplay` + `playsinline`) to reduce iOS suspensions.  
+- Listen for `visibilitychange` and `ctx.resume()` when tab is foregrounded.
 
-Chrome Developers – PWA installability requirements (manifest icons, etc.)
-web.dev
+---
+
+## 🗺️ Roadmap (Nice-to-haves)
+
+- **AudioWorklet** port for even lower latency and heavier DSP.
+- **Multi-preset system** (save/load user presets).
+- **Input/output device pickers** where supported.
+- **Optional band-vocoder** mode in addition to current chain.
+
+---
+
+## 🔒 Privacy
+
+- Audio stays **local in the browser**. No network transmission is required for voice processing.  
+- The service worker caches static assets only.
+
+---
+
+## 📜 Changelog (this update)
+
+- Robust mobile chain with raw mic constraints and `<audio>` keep-alive routing.
+- Vader preset rebuilt (EQ, compressor, waveshaper, comb, subtle convolver).
+- Procedural mechanical breathing loop added (`assets/breathing.wav`).
+- PWA manifest, icons, and service worker updated.
+
+---
+
+## 🙏 Acknowledgements & Notes
+
+- Inspired by classic production tips (EQ for chest, heavy compression, subtle distortion, short comb/early reflections).  
+- Not affiliated with Lucasfilm/Disney. “Darth Vader” is a character of Lucasfilm Ltd.
+
+---
+
+## 🧾 License
+
+- Source code: same license as the repository’s existing `LICENSE` (unchanged).  
+- `assets/breathing.wav`: generated for this project; may be used within this app. Replace with your own loop if you prefer a different sound.
