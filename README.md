@@ -1,4 +1,4 @@
-# Vader Vocoder PWA (Updated)
+# Vader Vocoder PWA
 
 A mobile-first, installable **Progressive Web App** that transforms your voice with a refined **Darth Vader** preset and a realistic, looping **mechanical breathing** bed. This update focuses on **stable live audio on mobile**, **authentic timbre**, and a clean, offline-ready PWA experience.
 
@@ -60,10 +60,7 @@ A mobile-first, installable **Progressive Web App** that transforms your voice w
 
 ## 🔊 Audio Graph (High-Level)
 
-```
-
-<code>mermaid</code>
-
+```mermaid
 flowchart LR
   Mic((Mic getUserMedia)) --> MSrc[MediaStreamSource]
   MSrc --> HP[Highpass (Low Cut)]
@@ -91,11 +88,7 @@ flowchart LR
   Sum --> OutGain[Voice Volume]
   OutGain --> MSDest[MediaStreamDestination]
   MSDest --> HTMLAudio[<audio> (autoplay, playsinline)]
-
-<code></code>
-
 ```
-
 
 **Why this structure?**  
 - The **comb** path adds metallic “helmet” resonance.  
